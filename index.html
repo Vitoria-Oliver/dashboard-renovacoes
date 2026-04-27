@@ -221,7 +221,7 @@
   <script>
     let escolas = [];
 
-    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSNmJt0rJPPV_4JSjR8XMZi40z2LjU8QbLK6UgibBLjcOgAT0je31JW5Guct0Tu9NYyP9Bd09fRWHVD/pub?output=csv")
+    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSNmJt0rJPPV_4JSjR8XMZi40z2LjU8QbLK6UgibBLjcOgAT0je31JW5Guct0Tu9NYyP9Bd09fRWHVD/pub?output=csv&cacheBust=" + new Date().getTime())
       .then(response => response.text())
       .then(csv => {
         const linhas = csv.trim().split(/\r?\n/).slice(1);
