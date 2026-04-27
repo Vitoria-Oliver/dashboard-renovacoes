@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard de Renovações MAIO</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root{
+      --primary:#009fe3;
+      --primary-dark:#007bb5;
+      --primary-light:#e0f2fe;
+      --bg:#eef2f7;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#e5e7eb;
+      --danger:#dc2626;
+      --success:#16a34a;
+      --warning:#f97316;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+    body{background:var(--bg);color:#1f2937;padding:24px}
+    .app{max-width:1400px;margin:auto}
+
+    .top-nav{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+    .nav-btn{border:0;padding:13px 20px;border-radius:999px;font-weight:800;cursor:pointer;background:var(--primary-light);color:var(--primary);transition:.2s}
+    .nav-btn:hover{transform:translateY(-2px)}
+    .nav-btn.active{background:var(--primary);color:#fff;box-shadow:0 10px 25px rgba(0,159,227,.25)}
+
+    .page{display:none}
+    .page.active{display:block}
+
+    .dashboard,.schools-page{background:#fff;border-radius:22px;padding:32px;box-shadow:0 18px 45px rgba(15,23,42,.12)}
+
+    .header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:28px;border-radius:18px;margin-bottom:26px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+    .header-left{display:flex;align-items:center;gap:16px}
+    .logo{height:50px;width:auto;max-width:160px;object-fit:contain}
+    .header h1{font-size:30px;color:white;margin-bottom:8px;letter-spacing:-.5px}
+    .header p{color:#e0f2fe;font-size:14px}
+    .badge{background:rgba(255,255,255,0.22);color:white;padding:10px 16px;border-radius:999px;font-weight:800;font-size:13px;white-space:nowrap}
+
+    .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-bottom:28px}
+    .card{background:white;border:1px solid var(--border);border-radius:18px;padding:22px;min-height:145px;box-shadow:0 10px 25px rgba(0,0,0,.07);transition:.2s;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;overflow:hidden}
+    .card::after{content:"";position:absolute;right:-24px;top:-24px;width:84px;height:84px;border-radius:50%;background:rgba(0,159,227,.10)}
+    .card:hover{transform:translateY(-4px)}
+    .label{font-size:12px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:10px;text-align:center;z-index:1}
+    .value{font-size:32px;font-weight:900;color:var(--text);margin-bottom:10px;text-align:center;z-index:1}
+    .status{font-size:12px;font-weight:800;display:inline-block;padding:6px 10px;border-radius:999px;z-index:1}
+    .critical{background:#fee2e2;color:#991b1b}
+    .neutral{background:var(--primary-light);color:#005f91}
+    .medium{background:#fef3c7;color:#92400e}
+    .success{background:#dcfce7;color:#166534}
+
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:22px;margin-bottom:22px}
+    .panel{border:1px solid var(--border);border-radius:20px;padding:24px;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.04)}
+    .panel h2{font-size:20px;color:var(--text);margin-bottom:18px}
+    .bar-row{margin-bottom:18px}
+    .bar-info{display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;font-weight:800;gap:15px}
+    .bar-info span{color:#334155}
+    .bar-info strong{color:var(--text)}
+    .bar{height:16px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:999px}
+    .green{background:var(--success)}
+    .red{background:var(--danger)}
+    .orange{background:var(--warning)}
+
+    .metrics-list{display:grid;gap:12px}
+    .metric-line{display:flex;justify-content:space-between;border-bottom:1px dashed #dbe1ea;padding-bottom:12px;font-size:15px;gap:14px}
+    .metric-line span{color:#1f2937}
+    .metric-line strong{color:var(--text);font-size:16px}
+
+    .toolbar{display:flex;justify-content:space-between;gap:14px;align-items:center;margin:24px 0;flex-wrap:wrap}
+    .search{flex:1;min-width:260px;border:1px solid #cbd5e1;border-radius:14px;padding:13px 16px;font-size:14px;outline:none}
+    .search:focus,.select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,159,227,.15)}
+    .select{border:1px solid #cbd5e1;border-radius:14px;padding:13px 16px;font-size:14px;background:#fff;outline:none}
+    .export-btn{border:0;background:var(--primary);color:#fff;border-radius:14px;padding:13px 18px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px rgba(0,159,227,.22)}
+    .export-btn:hover{background:var(--primary-dark)}
+
+    .summary-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+    .chip{border-radius:16px;padding:16px;border:1px solid var(--border);background:#f8fafc;text-align:center}
+    .chip strong{display:block;font-size:24px;color:var(--text);margin-bottom:3px}
+    .chip span{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase}
+
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:18px}
+    table{width:100%;border-collapse:collapse;min-width:1100px}
+    thead{background:var(--primary);color:#fff;position:sticky;top:0}
+    th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:13px;white-space:nowrap}
+    tbody tr:hover{background:#f8fafc}
+    .tag{font-weight:800;padding:6px 10px;border-radius:999px;font-size:11px}
+    .tag-ok{background:#dcfce7;color:#166534}
+    .tag-no{background:#fee2e2;color:#991b1b}
+    .tag-lost{background:#111827;color:#fff}
+    .risk{font-weight:800}
+    .money{text-align:right}
+    .small-note{font-size:12px;color:var(--muted);margin-top:10px}
+
+    @media(max-width:1000px){
+      body{padding:14px}
+      .dashboard,.schools-page{padding:20px}
+      .kpis,.grid,.summary-chips{grid-template-columns:1fr}
+      .header{flex-direction:column;align-items:flex-start}
+      .header-left{align-items:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <nav class="top-nav">
+      <button class="nav-btn active" onclick="showPage('dashboard', this)">📊 Dashboard</button>
+      <button class="nav-btn" onclick="showPage('schools', this)">🏫 Escolas e Status</button>
+    </nav>
+
+    <main id="dashboard" class="page active dashboard">
+      <section class="header">
+        <div class="header-left">
+          <img src="./logo.png" class="logo" alt="Logo">
+          <div>
+            <h1>Dashboard Renovações MAIO</h1>
+            <p>Visão consolidada de clientes, assinaturas, perdas e oportunidades de recuperação.</p>
+          </div>
+        </div>
+        <div class="badge">Status geral: CRÍTICO</div>
+      </section>
+
+      <section class="kpis">
+        <div class="card"><div class="label">Total de Clientes</div><div class="value">41</div><span class="status neutral">Base Gere</span></div>
+        <div class="card"><div class="label">Total de Assinaturas</div><div class="value">163</div><span class="status neutral">Volume total</span></div>
+        <div class="card"><div class="label">Receita Total</div><div class="value">R$ 33.243,10</div><span class="status neutral">Potencial</span></div>
+        <div class="card"><div class="label">Taxa de Renovação</div><div class="value">5%</div><span class="status critical">Muito ruim</span></div>
+        <div class="card"><div class="label">Taxa de Não Renovados</div><div class="value">93%</div><span class="status critical">Crítico</span></div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>Renovação de Clientes</h2>
+          <div class="bar-row"><div class="bar-info"><span>Clientes renovados</span><strong>2 de 41</strong></div><div class="bar"><div class="bar-fill green" style="width:5%"></div></div></div>
+          <div class="bar-row"><div class="bar-info"><span>Clientes não renovados</span><strong>38 de 41</strong></div><div class="bar"><div class="bar-fill red" style="width:93%"></div></div></div>
+          <div class="bar-row"><div class="bar-info"><span>Quantidade de assinaturas recusadas</span><strong>40 de 163</strong></div><div class="bar"><div class="bar-fill orange" style="width:25%"></div></div></div>
+        </div>
+
+        <div class="panel">
+          <h2>Resumo Financeiro</h2>
+          <div class="metrics-list">
+            <div class="metric-line"><span>Valor renovado</span><strong>R$ 549,00</strong></div>
+            <div class="metric-line"><span>Valor perdido</span><strong>R$ 24.882,60</strong></div>
+            <div class="metric-line"><span>Valor recusado</span><strong>R$ 7.884,00</strong></div>
+            <div class="metric-line"><span>Ticket médio</span><strong>R$ 274,50</strong></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section id="schools" class="page schools-page">
+      <section class="header">
+        <div class="header-left">
+          <img src="logo.png" class="logo" alt="Logo">
+          <div>
+            <h1>Escolas e Status de Renovação</h1>
+            <p>Consulta operacional para diretoria: filtros, status individual e exportação em Excel.</p>
+          </div>
+        </div>
+        <div class="badge">Base detalhada</div>
+      </section>
+
+      <div class="summary-chips">
+        <div class="chip"><strong id="totalRows">0</strong><span>Escolas listadas</span></div>
+        <div class="chip"><strong id="renewedRows">0</strong><span>Já renovou</span></div>
+        <div class="chip"><strong id="notRenewedRows">0</strong><span>Não renovou</span></div>
+        <div class="chip"><strong id="lostRows">0</strong><span>Perdidas/recusas</span></div>
+      </div>
+
+      <div class="toolbar">
+        <input id="searchInput" class="search" placeholder="Buscar por escola, e-mail, cidade, status..." oninput="renderTable()" />
+        <select id="statusFilter" class="select" onchange="renderTable()">
+          <option value="">Todos os status</option>
+          <option>Já renovou</option>
+          <option>Não renovou</option>
+          <option>Recusou proposta</option>
+        </select>
+        <button class="export-btn" onclick="exportExcel()">⬇ Exportar Excel</button>
+      </div>
+
+      <div class="table-wrap">
+        <table id="schoolsTable">
+          <thead>
+            <tr>
+              <th>Código</th><th>Escola</th><th>CNPJ</th><th>E-mail</th><th>Telefone</th><th>Assinaturas</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Em contato?</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="small-note">Alerta: recomenda-se validar CNPJ, valores e vencimentos antes da apresentação final.</p>
+    </section>
+  </div>
+
+  <script>
+    const escolas = [
+      {codigo:'20566', escola:'SESI SUZANO ESCOLA SESI SUZANO - CE 081', cnpj:'03.779.133/0164-42', email:'alexandre.lucas@sesisp.org.br', telefone:'', assinaturas:2, valor:'R$ 438,00', vencimento:'11/05/2026', status:'Não renovou', resultado:'SIM'},
+      {codigo:'39207', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI ESCOLA SESI FERRAZ DE VASCONCELOS - CE 240', cnpj:'03.779.133/0162-80', email:'ce240@sesisp.org.br', telefone:'(11) 4676-4042', assinaturas:16, valor:'R$ 3.153,60', vencimento:'11/05/2026', status:'Não renovou', resultado:'SIM'},
+      {codigo:'91906', escola:'APM DA EMEB MARCOS ROGERIO DA ROSA', cnpj:'03.196.955/0001-54', email:'40174@emeb.saobernardo.sp.gov.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'17/05/2026', status:'Já renovou', resultado:'GANHO'},
+      {codigo:'13047', escola:'INSTITUTO DAS IRMAS DA SANTA CRUZ COLEGIO SANTA MARIA - SAO PAULO', cnpj:'57.035.933/0005-65', email:'denise.machado@colsantamaria.com.br', telefone:'(11) 2198-0621', assinaturas:2, valor:'R$ 438,00', vencimento:'16/05/2026', status:'Não renovou', resultado:'SIM'},
+      {codigo:'95382', escola:'ÁGAPE PRODUÇÕES DIDÁTICAS LTDA EDITORA FLOREAR LIVROS', cnpj:'01.600.127/0001-04', email:'contato@editoraflorearlivros.com.br', telefone:'(43) 9840-3607', assinaturas:1, valor:'R$ 257,50', vencimento:'03/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'21429', escola:'JOÃO E MARIA VIVÊNCIA INFANTIL DE VINHEDO ESCOLA JOÃO E MARIA', cnpj:'73.887.366/0001-06', email:'isabelanobremachado@gmail.com', telefone:'(19) 3886-1104', assinaturas:2, valor:'R$ 281,40', vencimento:'04/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'38186', escola:'SERVIÇO SOCIAL DA INDÚSTRIA SESI CE 079 - MAUÁ', cnpj:'03.779.133/0015-00', email:'ga@sesisenaisp.org.br', telefone:'(11) 4542-8966', assinaturas:1, valor:'R$ 219,00', vencimento:'26/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'96599', escola:'ALTERNATIVA EMPREENDIMENTOS EDUCACIONAIS ALTERNATIVA COLÉGIO', cnpj:'31.507.825/0001-20', email:'gestao@alternativacolegio.com.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'05/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'23096', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI CE 380', cnpj:'03.779.133/0085-04', email:'ce380@sesisp.org.br', telefone:'(18) 3361-1465', assinaturas:16, valor:'R$ 3.153,60', vencimento:'05/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'96829', escola:'APM DA EMEB PROF. LÁZARO MIRANDA DUARTE', cnpj:'49.392.046/0001-92', email:'emeblduarte@jundiai.sp.gov.br', telefone:'(11) 4589-6090', assinaturas:1, valor:'R$ 257,50', vencimento:'06/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'22310', escola:'SOCIEDADE EDUCACIONAL PORTO LTDA. ESCOLA SOLOS', cnpj:'43.001.375/0001-89', email:'beatriz@escolasolos.com', telefone:'(41) 3072-1516', assinaturas:9, valor:'R$ 1.927,20', vencimento:'07/05/2026', status:'Não renovou', resultado:'SIM'},
+      {codigo:'96824', escola:'INSTITUIÇÃO PAULISTA ADVENTISTA DE EDUCAÇÃO E ASSISTÊNCIA SOCIAL COLÉGIO ADVENTISTA DE INDAIATUBA', cnpj:'43.586.122/0190-52', email:'indaiatuba.tes@adventistas.org', telefone:'(19) 2085-0185', assinaturas:1, valor:'R$ 257,50', vencimento:'09/05/2026', status:'Não renovou', resultado:'SIM'},
+      {codigo:'19480', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI ESCOLA SESI MOGI DAS CRUZES', cnpj:'03.779.133/0156-32', email:'ingrid.barbosa@sesisp.org.br', telefone:'(11) 4723-6938', assinaturas:1, valor:'R$ 219,00', vencimento:'11/05/2026', status:'Não renovou', resultado:'SIM'},
+      {codigo:'19160', escola:'ESCOLA SESI 355 JUNDIAÍ ESCOLA SESI JUNDIAÍ - CE 355', cnpj:'03.779.133/0137-70', email:'carla.tini@sesisp.org.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'08/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'19479', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI SESI 413 - MOGI DAS CRUZES - BRÁS CUBAS', cnpj:'03.779.133/0007-91', email:'financeirocruzes@sesisp.org.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'08/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'65163', escola:'HUDSON UNIVERSITY HUDSON UNIVERSITY', cnpj:'67.424.903/0001-70', email:'apimentel@hudson.k12.ma.us', telefone:'', assinaturas:8, valor:'R$ 1.125,60', vencimento:'08/05/2026', status:'Não renovou', resultado:'SIM'},
+      {codigo:'18370', escola:'EBE ESCOLA CANADENSE LTDA MAPLE BEAR UNIDADE VILA OLIMPIA', cnpj:'17.013.310/0001-43', email:'financeiro@maplebearvno.com.br', telefone:'(11) 5041-2336', assinaturas:1, valor:'R$ 219,00', vencimento:'23/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'39365', escola:'EDUCANDO ENSINO FUNDAMENTAL LTDA THEMA EDUCANDO', cnpj:'48.000.578/0001-74', email:'fundamental.educando@gmail.com', telefone:'(19) 9818-7162', assinaturas:1, valor:'R$ 219,00', vencimento:'08/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'98053', escola:'ESCOLA DOMUS SAPIENTIAE LTDA GLOBAL ME SCHOOL', cnpj:'50.596.980/0002-96', email:'tania.costa@globalme.com.br', telefone:'(11) 3065-2440', assinaturas:1, valor:'R$ 257,50', vencimento:'12/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'23318', escola:'ASSOCIAÇÃO EDUCACIONAL CANADENSE DE MAPLE BEAR JARDINS', cnpj:'36.195.301/0001-65', email:'eliana@maplebearjardins.com.br', telefone:'(11) 3569-0001', assinaturas:1, valor:'R$ 257,50', vencimento:'14/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'18477', escola:'FUNDAÇÃO DE ROTARIANOS DE SAO PAULO COLEGIO RIO BRANCO - HIGIENOPOLIS', cnpj:'61.370.094/0001-85', email:'valeria.wente@crb.g12.br', telefone:'', assinaturas:2, valor:'R$ 438,00', vencimento:'14/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'39476', escola:'ESCOLA INTERNACIONAL DO IPIRANGA RED HOUSE MUSEU DO IPIRANGA', cnpj:'36.016.239/0002-88', email:'olivia.iwasaki@redhouse.com.br', telefone:'(11) 4934-5777', assinaturas:2, valor:'R$ 438,00', vencimento:'14/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'19182', escola:'UNIAO BRASILEIRA DE EDUCACAO E ENSINO COLEGIO MARISTA DOM SILVERIO', cnpj:'17.200.684/0002-59', email:'almoxarifado@maristabrasil.org', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'14/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'18287', escola:'SOCIEDADE AGOSTINIANA DE EDUCACAO E ASSISTENCIA COLEGIO AGOSTINIANO MENDEL', cnpj:'60.485.935/0006-41', email:'biblioteca@camendel.com.br', telefone:'(11) 2090-3266', assinaturas:1, valor:'R$ 257,50', vencimento:'17/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'18566', escola:'CENTRO EDUCACIONAL ALS CIMAN CRUZEIRO', cnpj:'05.781.304/0001-57', email:'colegio@ciman.com.br', telefone:'(61) 3213-3838', assinaturas:1, valor:'R$ 257,50', vencimento:'16/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'39418', escola:'COLÉGIO ANGLO-BRASILEIRO LTDA COLÉGIO ANGLO-BRASILEIRO LTDA', cnpj:'42.015.412/0001-45', email:'biblioteca@anglobra.com.br', telefone:'(71) 3367-2173', assinaturas:1, valor:'R$ 257,50', vencimento:'16/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'18236', escola:'ASTHER EMPREENDIMENTOS EDUCACIONAIS LTDA COLEGIO ASTHER', cnpj:'50.092.758/0001-75', email:'valeria.dellafina@colegioasther.com.br', telefone:'', assinaturas:1, valor:'R$ 257,50', vencimento:'22/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'98819', escola:'FUNDAÇÃO BRADESCO ESCOLA DE EDUCACAO BASICA E PROF. FUNDAÇÃO BRADESCO', cnpj:'60.701.521/0057-52', email:'natal@fundacao.bradesco', telefone:'(84) 3205-8179', assinaturas:1, valor:'R$ 219,00', vencimento:'22/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'98442', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI CENTRO DE ATIVIDADES - RIBEIRAO PRETO', cnpj:'03.779.133/0059-12', email:'DAIANE.CORREIA@SESI.SP.ORG.BR', telefone:'', assinaturas:16, valor:'R$ 3.328,80', vencimento:'19/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'19143', escola:'ASSOCIAÇÃO PEDAGOGICA PRAIA DO RISO ESCOLA PRAIA DO RISO - FLORIANOPOLIS', cnpj:'79.886.198/0001-02', email:'financeiro2@praiadariso.com.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'22/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'39299', escola:'MUNICIPIO DE CABRALIA PAULISTA MUNICIPIO DE CABRALIA PAULISTA', cnpj:'46.137.469/0001-78', email:'emefivianicottoibas@gmail.com', telefone:'(14) 3285-1505', assinaturas:10, valor:'R$ 2.080,50', vencimento:'27/05/2026', status:'Não renovou', resultado:'SIM'},
+      {codigo:'100350', escola:'APM DA EMEF ANACLETO CAMPANELLA APM EMEF ANACLETO CAMPANELLA', cnpj:'50.153.634/0001-52', email:'financeiroapmanacleto@gmail.com', telefone:'(11) 4224-0682', assinaturas:1, valor:'R$ 257,50', vencimento:'20/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'100378', escola:'NÚCLEO INFANTIL E FUNDAMENTAL GAKUSHUKAN COLÉGIO GAKUSHUKAN', cnpj:'74.334.590/0001-25', email:'leandro.cruz@alunosgk.com.br', telefone:'(11) 4972-4448', assinaturas:1, valor:'R$ 140,70', vencimento:'22/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'101878', escola:'ASSOCIAÇÃO BRASILEIRA DE EDUCAÇÃO E CULTURA COLÉGIO MARISTA', cnpj:'60.982.352/0006-26', email:'tamires.gomes@maristabrasil.org', telefone:'(16) 3977-1400', assinaturas:1, valor:'R$ 257,50', vencimento:'27/05/2026', status:'Já renovou', resultado:'GANHO'},
+      {codigo:'18960', escola:'INSTITUTO ACALANTO DE ENSINO COLEGIO RANIERI', cnpj:'27.038.662/0001-07', email:'ESCA@ESCA.SRV.BR', telefone:'', assinaturas:1, valor:'R$ 257,50', vencimento:'26/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'102638', escola:'RUBIA SIQUEIRA', cnpj:'01.935.084/0001-18', email:'rubia.lorene1@gmail.com', telefone:'(61) 99517-2212', assinaturas:1, valor:'R$ 140,70', vencimento:'26/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'19150', escola:'ASSOCIAÇÃO DOS FUNCIONÁRIOS DA CBMM CDH CENTRO DE DESENVOLVIMENTO HUMANO', cnpj:'18.141.648/0003-05', email:'cdh.secretaria@escolacdh.com.br', telefone:'', assinaturas:10, valor:'R$ 2.080,50', vencimento:'46.168', status:'Não renovou', resultado:'SIM'},
+      {codigo:'22517', escola:'ACE DA EM PROFESSORA CREUSA GOMES DE AZEVEDO ESCOLA MUNICIPAL PROF. CREUSA GOMES', cnpj:'11.847.283/0001-28', email:'em.creusa@gmail.com', telefone:'(11) 4032-7378', assinaturas:1, valor:'R$ 257,50', vencimento:'28/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'19075', escola:'SERVICO SOCIAL DA INDUSTRIA - SESI ESCOLA SESI AGUDOS - CE 114', cnpj:'03.779.133/0057-50', email:'CE114@SESI.SP.ORG.BR', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'28/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'19017', escola:'EMPREENDEDIMENTO EDUCACIONAL SAO FRANCISCO COLEGIO ECOLOGIA', cnpj:'12.845.938/0001-91', email:'secretaria@colegioecologia.com.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'29/05/2026', status:'Não renovou', resultado:'NÃO'},
+      {codigo:'55457', escola:'MOBILE ESCOLA PRATICA DE ESTUDOS ELEMENTARES S.A. ESCOLA MOBILE', cnpj:'46.358.354/0002-94', email:'adriana.felicissimo@escolamobile.com.br', telefone:'', assinaturas:40, valor:'R$ 7.884,00', vencimento:'20/05/2026', status:'Recusou proposta', resultado:'PERDIDA'}
+    ];
+
+    function showPage(id, btn){
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      if(id==='schools') renderTable();
+    }
+
+    function statusClass(status){
+      if(status==='Já renovou') return 'tag-ok';
+      if(status==='Recusou proposta') return 'tag-lost';
+      return 'tag-no';
+    }
+
+    function getFiltered(){
+      const q=(document.getElementById('searchInput')?.value || '').toLowerCase();
+      const st=document.getElementById('statusFilter')?.value || '';
+      return escolas.filter(e=>(!st || e.status===st) && Object.values(e).join(' ').toLowerCase().includes(q));
+    }
+
+    function renderTable(){
+      const tbody=document.querySelector('#schoolsTable tbody');
+      if(!tbody) return;
+      const rows=getFiltered();
+      tbody.innerHTML=rows.map(e=>`<tr><td>${e.codigo}</td><td><strong>${e.escola}</strong></td><td>${e.cnpj}</td><td>${e.email}</td><td>${e.telefone}</td><td>${e.assinaturas}</td><td class="money">${e.valor}</td><td>${e.vencimento}</td><td><span class="tag ${statusClass(e.status)}">${e.status}</span></td><td class="risk">${e.resultado}</td></tr>`).join('');
+      document.getElementById('totalRows').textContent=rows.length;
+      document.getElementById('renewedRows').textContent=rows.filter(e=>e.status==='Já renovou').length;
+      document.getElementById('notRenewedRows').textContent=rows.filter(e=>e.status==='Não renovou').length;
+      document.getElementById('lostRows').textContent=rows.filter(e=>e.status==='Recusou proposta').length;
+    }
+
+    function exportExcel(){
+      const data=getFiltered().map(e=>({'Código':e.codigo,'Escola':e.escola,'CNPJ':e.cnpj,'E-mail':e.email,'Telefone':e.telefone,'Assinaturas':e.assinaturas,'Valor':e.valor,'Vencimento':e.vencimento,'Status':e.status,'Resultado':e.resultado}));
+      const ws=XLSX.utils.json_to_sheet(data);
+      const wb=XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb,ws,'Escolas e Status');
+      XLSX.writeFile(wb,'escolas_status_renovacao.xlsx');
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
