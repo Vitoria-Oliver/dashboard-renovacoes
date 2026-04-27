@@ -196,49 +196,31 @@
   </div>
 
   <script>
-    const escolas = [
-      {codigo:'20566', escola:'SESI SUZANO ESCOLA SESI SUZANO - CE 081', cnpj:'03.779.133/0164-42', email:'alexandre.lucas@sesisp.org.br', telefone:'', assinaturas:2, valor:'R$ 438,00', vencimento:'11/05/2026', status:'Não renovou', resultado:'SIM'},
-      {codigo:'39207', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI ESCOLA SESI FERRAZ DE VASCONCELOS - CE 240', cnpj:'03.779.133/0162-80', email:'ce240@sesisp.org.br', telefone:'(11) 4676-4042', assinaturas:16, valor:'R$ 3.153,60', vencimento:'11/05/2026', status:'Não renovou', resultado:'SIM'},
-      {codigo:'91906', escola:'APM DA EMEB MARCOS ROGERIO DA ROSA', cnpj:'03.196.955/0001-54', email:'40174@emeb.saobernardo.sp.gov.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'17/05/2026', status:'Já renovou', resultado:'GANHO'},
-      {codigo:'13047', escola:'INSTITUTO DAS IRMAS DA SANTA CRUZ COLEGIO SANTA MARIA - SAO PAULO', cnpj:'57.035.933/0005-65', email:'denise.machado@colsantamaria.com.br', telefone:'(11) 2198-0621', assinaturas:2, valor:'R$ 438,00', vencimento:'16/05/2026', status:'Não renovou', resultado:'SIM'},
-      {codigo:'95382', escola:'ÁGAPE PRODUÇÕES DIDÁTICAS LTDA EDITORA FLOREAR LIVROS', cnpj:'01.600.127/0001-04', email:'contato@editoraflorearlivros.com.br', telefone:'(43) 9840-3607', assinaturas:1, valor:'R$ 257,50', vencimento:'03/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'21429', escola:'JOÃO E MARIA VIVÊNCIA INFANTIL DE VINHEDO ESCOLA JOÃO E MARIA', cnpj:'73.887.366/0001-06', email:'isabelanobremachado@gmail.com', telefone:'(19) 3886-1104', assinaturas:2, valor:'R$ 281,40', vencimento:'04/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'38186', escola:'SERVIÇO SOCIAL DA INDÚSTRIA SESI CE 079 - MAUÁ', cnpj:'03.779.133/0015-00', email:'ga@sesisenaisp.org.br', telefone:'(11) 4542-8966', assinaturas:1, valor:'R$ 219,00', vencimento:'26/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'96599', escola:'ALTERNATIVA EMPREENDIMENTOS EDUCACIONAIS ALTERNATIVA COLÉGIO', cnpj:'31.507.825/0001-20', email:'gestao@alternativacolegio.com.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'05/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'23096', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI CE 380', cnpj:'03.779.133/0085-04', email:'ce380@sesisp.org.br', telefone:'(18) 3361-1465', assinaturas:16, valor:'R$ 3.153,60', vencimento:'05/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'96829', escola:'APM DA EMEB PROF. LÁZARO MIRANDA DUARTE', cnpj:'49.392.046/0001-92', email:'emeblduarte@jundiai.sp.gov.br', telefone:'(11) 4589-6090', assinaturas:1, valor:'R$ 257,50', vencimento:'06/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'22310', escola:'SOCIEDADE EDUCACIONAL PORTO LTDA. ESCOLA SOLOS', cnpj:'43.001.375/0001-89', email:'beatriz@escolasolos.com', telefone:'(41) 3072-1516', assinaturas:9, valor:'R$ 1.927,20', vencimento:'07/05/2026', status:'Não renovou', resultado:'SIM'},
-      {codigo:'96824', escola:'INSTITUIÇÃO PAULISTA ADVENTISTA DE EDUCAÇÃO E ASSISTÊNCIA SOCIAL COLÉGIO ADVENTISTA DE INDAIATUBA', cnpj:'43.586.122/0190-52', email:'indaiatuba.tes@adventistas.org', telefone:'(19) 2085-0185', assinaturas:1, valor:'R$ 257,50', vencimento:'09/05/2026', status:'Não renovou', resultado:'SIM'},
-      {codigo:'19480', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI ESCOLA SESI MOGI DAS CRUZES', cnpj:'03.779.133/0156-32', email:'ingrid.barbosa@sesisp.org.br', telefone:'(11) 4723-6938', assinaturas:1, valor:'R$ 219,00', vencimento:'11/05/2026', status:'Não renovou', resultado:'SIM'},
-      {codigo:'19160', escola:'ESCOLA SESI 355 JUNDIAÍ ESCOLA SESI JUNDIAÍ - CE 355', cnpj:'03.779.133/0137-70', email:'carla.tini@sesisp.org.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'08/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'19479', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI SESI 413 - MOGI DAS CRUZES - BRÁS CUBAS', cnpj:'03.779.133/0007-91', email:'financeirocruzes@sesisp.org.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'08/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'65163', escola:'HUDSON UNIVERSITY HUDSON UNIVERSITY', cnpj:'67.424.903/0001-70', email:'apimentel@hudson.k12.ma.us', telefone:'', assinaturas:8, valor:'R$ 1.125,60', vencimento:'08/05/2026', status:'Não renovou', resultado:'SIM'},
-      {codigo:'18370', escola:'EBE ESCOLA CANADENSE LTDA MAPLE BEAR UNIDADE VILA OLIMPIA', cnpj:'17.013.310/0001-43', email:'financeiro@maplebearvno.com.br', telefone:'(11) 5041-2336', assinaturas:1, valor:'R$ 219,00', vencimento:'23/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'39365', escola:'EDUCANDO ENSINO FUNDAMENTAL LTDA THEMA EDUCANDO', cnpj:'48.000.578/0001-74', email:'fundamental.educando@gmail.com', telefone:'(19) 9818-7162', assinaturas:1, valor:'R$ 219,00', vencimento:'08/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'98053', escola:'ESCOLA DOMUS SAPIENTIAE LTDA GLOBAL ME SCHOOL', cnpj:'50.596.980/0002-96', email:'tania.costa@globalme.com.br', telefone:'(11) 3065-2440', assinaturas:1, valor:'R$ 257,50', vencimento:'12/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'23318', escola:'ASSOCIAÇÃO EDUCACIONAL CANADENSE DE MAPLE BEAR JARDINS', cnpj:'36.195.301/0001-65', email:'eliana@maplebearjardins.com.br', telefone:'(11) 3569-0001', assinaturas:1, valor:'R$ 257,50', vencimento:'14/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'18477', escola:'FUNDAÇÃO DE ROTARIANOS DE SAO PAULO COLEGIO RIO BRANCO - HIGIENOPOLIS', cnpj:'61.370.094/0001-85', email:'valeria.wente@crb.g12.br', telefone:'', assinaturas:2, valor:'R$ 438,00', vencimento:'14/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'39476', escola:'ESCOLA INTERNACIONAL DO IPIRANGA RED HOUSE MUSEU DO IPIRANGA', cnpj:'36.016.239/0002-88', email:'olivia.iwasaki@redhouse.com.br', telefone:'(11) 4934-5777', assinaturas:2, valor:'R$ 438,00', vencimento:'14/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'19182', escola:'UNIAO BRASILEIRA DE EDUCACAO E ENSINO COLEGIO MARISTA DOM SILVERIO', cnpj:'17.200.684/0002-59', email:'almoxarifado@maristabrasil.org', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'14/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'18287', escola:'SOCIEDADE AGOSTINIANA DE EDUCACAO E ASSISTENCIA COLEGIO AGOSTINIANO MENDEL', cnpj:'60.485.935/0006-41', email:'biblioteca@camendel.com.br', telefone:'(11) 2090-3266', assinaturas:1, valor:'R$ 257,50', vencimento:'17/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'18566', escola:'CENTRO EDUCACIONAL ALS CIMAN CRUZEIRO', cnpj:'05.781.304/0001-57', email:'colegio@ciman.com.br', telefone:'(61) 3213-3838', assinaturas:1, valor:'R$ 257,50', vencimento:'16/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'39418', escola:'COLÉGIO ANGLO-BRASILEIRO LTDA COLÉGIO ANGLO-BRASILEIRO LTDA', cnpj:'42.015.412/0001-45', email:'biblioteca@anglobra.com.br', telefone:'(71) 3367-2173', assinaturas:1, valor:'R$ 257,50', vencimento:'16/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'18236', escola:'ASTHER EMPREENDIMENTOS EDUCACIONAIS LTDA COLEGIO ASTHER', cnpj:'50.092.758/0001-75', email:'valeria.dellafina@colegioasther.com.br', telefone:'', assinaturas:1, valor:'R$ 257,50', vencimento:'22/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'98819', escola:'FUNDAÇÃO BRADESCO ESCOLA DE EDUCACAO BASICA E PROF. FUNDAÇÃO BRADESCO', cnpj:'60.701.521/0057-52', email:'natal@fundacao.bradesco', telefone:'(84) 3205-8179', assinaturas:1, valor:'R$ 219,00', vencimento:'22/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'98442', escola:'SERVIÇO SOCIAL DA INDUSTRIA - SESI CENTRO DE ATIVIDADES - RIBEIRAO PRETO', cnpj:'03.779.133/0059-12', email:'DAIANE.CORREIA@SESI.SP.ORG.BR', telefone:'', assinaturas:16, valor:'R$ 3.328,80', vencimento:'19/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'19143', escola:'ASSOCIAÇÃO PEDAGOGICA PRAIA DO RISO ESCOLA PRAIA DO RISO - FLORIANOPOLIS', cnpj:'79.886.198/0001-02', email:'financeiro2@praiadariso.com.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'22/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'39299', escola:'MUNICIPIO DE CABRALIA PAULISTA MUNICIPIO DE CABRALIA PAULISTA', cnpj:'46.137.469/0001-78', email:'emefivianicottoibas@gmail.com', telefone:'(14) 3285-1505', assinaturas:10, valor:'R$ 2.080,50', vencimento:'27/05/2026', status:'Não renovou', resultado:'SIM'},
-      {codigo:'100350', escola:'APM DA EMEF ANACLETO CAMPANELLA APM EMEF ANACLETO CAMPANELLA', cnpj:'50.153.634/0001-52', email:'financeiroapmanacleto@gmail.com', telefone:'(11) 4224-0682', assinaturas:1, valor:'R$ 257,50', vencimento:'20/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'100378', escola:'NÚCLEO INFANTIL E FUNDAMENTAL GAKUSHUKAN COLÉGIO GAKUSHUKAN', cnpj:'74.334.590/0001-25', email:'leandro.cruz@alunosgk.com.br', telefone:'(11) 4972-4448', assinaturas:1, valor:'R$ 140,70', vencimento:'22/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'101878', escola:'ASSOCIAÇÃO BRASILEIRA DE EDUCAÇÃO E CULTURA COLÉGIO MARISTA', cnpj:'60.982.352/0006-26', email:'tamires.gomes@maristabrasil.org', telefone:'(16) 3977-1400', assinaturas:1, valor:'R$ 257,50', vencimento:'27/05/2026', status:'Já renovou', resultado:'GANHO'},
-      {codigo:'18960', escola:'INSTITUTO ACALANTO DE ENSINO COLEGIO RANIERI', cnpj:'27.038.662/0001-07', email:'ESCA@ESCA.SRV.BR', telefone:'', assinaturas:1, valor:'R$ 257,50', vencimento:'26/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'102638', escola:'RUBIA SIQUEIRA', cnpj:'01.935.084/0001-18', email:'rubia.lorene1@gmail.com', telefone:'(61) 99517-2212', assinaturas:1, valor:'R$ 140,70', vencimento:'26/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'19150', escola:'ASSOCIAÇÃO DOS FUNCIONÁRIOS DA CBMM CDH CENTRO DE DESENVOLVIMENTO HUMANO', cnpj:'18.141.648/0003-05', email:'cdh.secretaria@escolacdh.com.br', telefone:'', assinaturas:10, valor:'R$ 2.080,50', vencimento:'46.168', status:'Não renovou', resultado:'SIM'},
-      {codigo:'22517', escola:'ACE DA EM PROFESSORA CREUSA GOMES DE AZEVEDO ESCOLA MUNICIPAL PROF. CREUSA GOMES', cnpj:'11.847.283/0001-28', email:'em.creusa@gmail.com', telefone:'(11) 4032-7378', assinaturas:1, valor:'R$ 257,50', vencimento:'28/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'19075', escola:'SERVICO SOCIAL DA INDUSTRIA - SESI ESCOLA SESI AGUDOS - CE 114', cnpj:'03.779.133/0057-50', email:'CE114@SESI.SP.ORG.BR', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'28/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'19017', escola:'EMPREENDEDIMENTO EDUCACIONAL SAO FRANCISCO COLEGIO ECOLOGIA', cnpj:'12.845.938/0001-91', email:'secretaria@colegioecologia.com.br', telefone:'', assinaturas:1, valor:'R$ 219,00', vencimento:'29/05/2026', status:'Não renovou', resultado:'NÃO'},
-      {codigo:'55457', escola:'MOBILE ESCOLA PRATICA DE ESTUDOS ELEMENTARES S.A. ESCOLA MOBILE', cnpj:'46.358.354/0002-94', email:'adriana.felicissimo@escolamobile.com.br', telefone:'', assinaturas:40, valor:'R$ 7.884,00', vencimento:'20/05/2026', status:'Recusou proposta', resultado:'PERDIDA'}
-    ];
+    let escolas = [];
+
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSNmJt0rJPPV_4JSjR8XMZi40z2LjU8QbLK6UgibBLjcOgAT0je31JW5Guct0Tu9NYyP9Bd09fRWHVD/pub?output=csv")
+  .then(response => response.text())
+  .then(csv => {
+    const linhas = csv.trim().split("\n").slice(1);
+
+    escolas = linhas.map(linha => {
+      const cols = linha.split(",");
+
+      return {
+        codigo: cols[0],
+        escola: cols[1],
+        cnpj: cols[2],
+        email: cols[3],
+        telefone: cols[4],
+        assinaturas: cols[5],
+        valor: cols[6],
+        vencimento: cols[7],
+        status: cols[8],
+        valor_renovado: cols[9],
+        quantidade: cols[10],
+        resultado: cols[11]
+      };
+    });
 
     function showPage(id, btn){
       document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
